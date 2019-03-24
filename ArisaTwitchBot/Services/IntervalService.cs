@@ -14,13 +14,18 @@ namespace ArisaTwitchBot.Services
             : base(arisaTwitchClient, serviceName)
         { }
 
-        public void StartService(TimeSpan interval)
+        public IntervalService Start(PeriodAndOffset periodAndOffset)
         {
             if (Enabled) throw new InvalidOperationException("Service already started");
             Enabled = true;
 
-            Log("starting");
-            _intervalTimer = new Timer(_ => OnInterval(), null, dueTime: 1, period: (int)interval.TotalMilliseconds);
+            Log($"starting in {periodAndOffset.Offset} ms");
+            _intervalTimer = new Timer(_ => OnInterval(),
+                state: null,
+                dueTime: periodAndOffset.Offset,
+                period: periodAndOffset.Period);
+
+            return this;
         }
 
         private void OnInterval()

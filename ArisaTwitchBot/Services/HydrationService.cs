@@ -2,7 +2,7 @@
 
 namespace ArisaTwitchBot.Services
 {
-    class HydrationService : IntervalService
+    public class HydrationService : IntervalService
     {
         public HydrationService(ArisaTwitchClient arisaTwitchClient)
             : base(arisaTwitchClient, nameof(HydrationService))
@@ -24,7 +24,7 @@ namespace ArisaTwitchBot.Services
             if (uptime.HasValue)
             {
                 var uptimeAsDate = new DateTime().AddMinutes(uptime.Value.TotalMinutes);
-                Log("stream uptime is " + uptimeAsDate.ToString("HH:mm:ss"));
+                Log("stream uptime is " + uptimeAsDate.ToString("dd HH:mm:ss"));
 
                 int h = (int)uptime.Value.TotalHours;
                 int m = uptime.Value.Minutes;
@@ -32,7 +32,7 @@ namespace ArisaTwitchBot.Services
                 string hString = $"{h} hour{(h > 1 ? "s" : "")}";
                 string mString = $"{m} minute{(m > 1 ? "s" : "")}";
 
-                string message = "You have been up for the past ";
+                string message = "You have been entertaining us for the past ";
 
                 if (h == 0 && m == 0) message += "few moments";
                 else if (h > 0) message += hString + (m > 0 ? (" and " + mString) : "");

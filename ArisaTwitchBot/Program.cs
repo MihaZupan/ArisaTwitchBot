@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace ArisaTwitchBot
 {
-    class Program
+    public class Program
     {
         static ArisaTwitchClient ArisaBot;
 

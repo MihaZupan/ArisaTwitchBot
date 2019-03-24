@@ -16,8 +16,7 @@
 
         protected void SendMessage(string message)
         {
-            ArisaTwitchClient.TwitchClient.SendMessage(ArisaTwitchClient.ChannelUsername, message);
-            Log($"sent a message \"{message}\"");
+            ArisaTwitchClient.SendMessage(message, ServiceName);
         }
 
         protected void Log(string message)
