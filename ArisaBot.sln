@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28714.193
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArisaTwitchBot", "ArisaTwitchBot\ArisaTwitchBot.csproj", "{5E0A495A-EFAB-4328-AD03-917520C2B2C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArisaTwitchBot", "src\ArisaTwitchBot\ArisaTwitchBot.csproj", "{5E0A495A-EFAB-4328-AD03-917520C2B2C9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EE4363C-63B2-46A9-81C6-4BFD9A283089}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{84B54ECD-488F-4F3E-AC4C-B63C85538674}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +25,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5E0A495A-EFAB-4328-AD03-917520C2B2C9} = {84B54ECD-488F-4F3E-AC4C-B63C85538674}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D681AFE-0F58-4360-92C1-B028A582935A}
