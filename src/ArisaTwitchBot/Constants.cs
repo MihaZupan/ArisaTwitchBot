@@ -27,7 +27,7 @@ namespace ArisaTwitchBot
         public const string ChannelUsername = "xArisax";
 #endif
 
-        public static readonly PeriodAndOffset HydrationServicePeriodAndOffset = PeriodAndOffset.FromMinutes(60, 0);
-        public static readonly PeriodAndOffset TwitchPrimeReminderPeriodAndOffset = PeriodAndOffset.FromMinutes(60, 30);
+        public static readonly PeriodAndOffset HydrationServicePeriodAndOffset = PeriodAndOffset.FromMinutes(60, 5);
+        public static readonly PeriodAndOffset TwitchPrimeReminderPeriodAndOffset = PeriodAndOffset.FromMinutes(60, 35);
     }
 }

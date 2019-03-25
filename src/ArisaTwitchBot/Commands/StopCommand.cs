@@ -10,7 +10,7 @@ namespace ArisaTwitchBot.Commands
 
         public Task Handle(CommandContext context)
         {
-            if (context.IsFromModerator)
+            if (context.IsFromModerator || context.Sender.Equals(Constants.BotUsername, StringComparison.OrdinalIgnoreCase))
             {
                 context.SendMention("Goodbye!");
                 Thread.Sleep(1000);

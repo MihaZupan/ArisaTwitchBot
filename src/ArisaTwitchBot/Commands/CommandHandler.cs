@@ -35,7 +35,7 @@ namespace ArisaTwitchBot.Commands
 
         public void Handle(ChatCommand chatCommand)
         {
-            Log($"Received a command {chatCommand.CommandText} from {chatCommand.ChatMessage.Username}");
+            Log($"Received a command \"{chatCommand.CommandText}\" from {chatCommand.ChatMessage.Username}");
 
             if (_commandTree.TryMatchLongest(chatCommand.CommandText, out KeyValuePair<string, ICommand> commandMatch))
             {

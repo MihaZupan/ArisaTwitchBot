@@ -51,7 +51,7 @@ namespace ArisaTwitchBot
 
         public async Task InitializeAsync()
         {
-            LogWriter = new StreamWriter(File.OpenWrite("bot.log"))
+            LogWriter = new StreamWriter(File.OpenWrite("bot_" + Environment.TickCount + ".log"))
             {
                 AutoFlush = true
             };
@@ -77,6 +77,10 @@ namespace ArisaTwitchBot
             StartServices();
 
             Log(nameof(ArisaTwitchClient) + " initialized");
+
+            SendMessage(
+                "[Bot] I'm now online. Feel free to kill me with !stop (or find out what I can do with !commands)",
+                nameof(ArisaTwitchClient));
         }
 
         private void StartServices()
