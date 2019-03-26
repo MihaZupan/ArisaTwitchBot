@@ -22,6 +22,16 @@ namespace ArisaTwitchBot.Commands
             if (amount == 0 || context.User.Username.IgnoreCaseEquals(receiver))
                 return context.SendMention($"You've just successfully done nothing");
 
+            if (receiver.IgnoreCaseEquals("all") && context.IsBroadcaster)
+            {
+                foreach (var user in context.UserService.GetAllUsersUnsafe())
+                {
+                    user.Balance.ExecuteTransaction(
+                        balance => balance.Add(amount));
+                }
+                return context.SendMention($"Gave everyone {amount}");
+            }
+
             if (!context.UserService.TryGetUserByUsername(receiver, out User receivingUser))
                 return context.SendMention(
                     "I do not know anyone by that name. @" + receiver +

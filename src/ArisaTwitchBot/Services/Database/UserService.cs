@@ -2,6 +2,7 @@
 using ArisaTwitchBot.Database.Models;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -71,6 +72,11 @@ namespace ArisaTwitchBot.Services.Database
                 user.Balance = newBalance;
                 ctx.SaveChanges();
             }
+        }
+
+        public List<User> GetAllUsersUnsafe()
+        {
+            return _usersMap.Values.ToList();
         }
     }
 }
