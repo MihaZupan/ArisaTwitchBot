@@ -5,44 +5,18 @@ namespace ArisaTwitchBot.Services
 {
     public abstract class IntervalService : ServiceBase
     {
-        public bool Enabled { get; private set; }
-
         protected abstract Action IntervalCallback { get; }
+        protected abstract PeriodAndOffset PeriodAndOffset { get; }
         private Timer _intervalTimer;
 
         protected IntervalService(ArisaTwitchClient arisaTwitchClient, string serviceName)
             : base(arisaTwitchClient, serviceName)
-        { }
-
-        public IntervalService Start(PeriodAndOffset periodAndOffset)
         {
-            if (Enabled) throw new InvalidOperationException("Service already started");
-            Enabled = true;
-
-            Log($"starting in {periodAndOffset.Offset} ms");
-            _intervalTimer = new Timer(_ => OnInterval(),
+            Log($"starting in {PeriodAndOffset.Offset} ms");
+            _intervalTimer = new Timer(_ => IntervalCallback(),
                 state: null,
-                dueTime: periodAndOffset.Offset,
-                period: periodAndOffset.Period);
-
-            return this;
-        }
-
-        private void OnInterval()
-        {
-            if (Enabled)
-            {
-                IntervalCallback();
-            }
-        }
-
-        public override void Stop()
-        {
-            if (!Enabled) return;
-            Enabled = false;
-
-            _intervalTimer.Dispose();
-            Log("service stopped");
+                dueTime: PeriodAndOffset.Offset,
+                period: PeriodAndOffset.Period);
         }
     }
 }

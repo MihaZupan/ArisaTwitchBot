@@ -12,8 +12,6 @@
             ServiceName = serviceName;
         }
 
-        public abstract void Stop();
-
         protected void SendMessage(string message)
         {
             ArisaTwitchClient.SendMessage(message, ServiceName);

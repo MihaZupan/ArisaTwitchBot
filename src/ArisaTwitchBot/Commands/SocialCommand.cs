@@ -10,9 +10,7 @@ namespace ArisaTwitchBot.Commands
         {
             const string message = "Make sure to follow instagram.com/asian_arisa";
 
-            context.SendMessage(message);
-
-            return Task.CompletedTask;
+            return context.SendMessage(message);
         }
     }
 }

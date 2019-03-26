@@ -1,4 +1,8 @@
-﻿using TwitchLib.Client.Models;
+﻿using ArisaTwitchBot.Services;
+using ArisaTwitchBot.Services.Database;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using TwitchLib.Client.Models;
 
 namespace ArisaTwitchBot.Commands
 {
@@ -9,24 +13,37 @@ namespace ArisaTwitchBot.Commands
         private readonly string _commandName;
 
         public ChatMessage ChatMessage => ChatCommand.ChatMessage;
-        public string Sender => ChatMessage.Username;
         public bool IsBroadcaster => ChatMessage.IsBroadcaster;
-        public bool IsFromModerator => ChatMessage.IsModerator || IsBroadcaster;
+        public bool IsFromModerator => ChatMessage.IsModerator || IsBroadcaster || ChatMessage.IsMe;
+        public List<string> Arguments => ChatCommand.ArgumentsAsList;
+
+        public readonly UserService UserService;
+        public readonly User User;
 
         public CommandContext(ArisaTwitchClient arisaTwitchClient, ChatCommand chatCommand, string commandName)
         {
             ArisaTwitchClient = arisaTwitchClient;
             ChatCommand = chatCommand;
             _commandName = commandName;
+
+            UserService = GetService<UserService>();
+            UserService.TryGetUserById(ChatMessage.UserId, out User);
         }
 
-        public void SendMessage(string message)
+        public Task SendMessage(string message)
         {
             ArisaTwitchClient.SendMessage(message, _commandName);
+            return Task.CompletedTask;
         }
-        public void SendMention(string message)
+        public Task SendMention(string message)
         {
-            SendMessage($"@{Sender} {message}");
+            return SendMessage($"@{User.Username} {message}");
+        }
+
+        public TService GetService<TService>()
+            where TService : ServiceBase
+        {
+            return ArisaTwitchClient.GetService<TService>();
         }
     }
 }

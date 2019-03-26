@@ -10,17 +10,18 @@ namespace ArisaTwitchBot.Commands
 
         public Task Handle(CommandContext context)
         {
-            if (context.IsFromModerator || context.Sender.Equals(Constants.BotUsername, StringComparison.OrdinalIgnoreCase))
+            if (context.IsFromModerator)
             {
                 context.SendMention("Goodbye!");
-                Thread.Sleep(1000);
+                context.ArisaTwitchClient.Stop();
+                Thread.Sleep(1000); // Wait for the message to go through
                 Environment.Exit(0);
+                return null; // We're not getting to here
             }
             else
             {
-                context.SendMention("You have no power over me!");
+                return context.SendMention("You have no power over me!");
             }
-            return Task.CompletedTask;
         }
     }
 }

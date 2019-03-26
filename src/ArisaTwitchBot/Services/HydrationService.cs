@@ -10,6 +10,8 @@ namespace ArisaTwitchBot.Services
 
         protected override Action IntervalCallback => OnInterval;
 
+        protected override PeriodAndOffset PeriodAndOffset => PeriodAndOffset.FromMinutes(60, 5);
+
         private static readonly string[] _hydrationMessages = new[]
         {
             "Time to take a shot! (of water ofc)",
@@ -46,7 +48,6 @@ namespace ArisaTwitchBot.Services
             else
             {
                 Log("failed to get stream uptime");
-                Stop();
             }
         }
     }

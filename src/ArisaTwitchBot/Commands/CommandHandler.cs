@@ -35,10 +35,9 @@ namespace ArisaTwitchBot.Commands
 
         public void Handle(ChatCommand chatCommand)
         {
-            Log($"Received a command \"{chatCommand.CommandText}\" from {chatCommand.ChatMessage.Username}");
-
             if (_commandTree.TryMatchLongest(chatCommand.CommandText, out KeyValuePair<string, ICommand> commandMatch))
             {
+                Log($"Received a command \"{chatCommand.CommandText}\" from {chatCommand.ChatMessage.Username}");
                 Task.Run(async () =>
                 {
                     try
@@ -51,6 +50,10 @@ namespace ArisaTwitchBot.Commands
                         ArisaTwitchClient.LogException(ex);
                     }
                 });
+            }
+            else
+            {
+                Log($"Received an unknown command \"{chatCommand.CommandText}\" from {chatCommand.ChatMessage.Username}");
             }
         }
 

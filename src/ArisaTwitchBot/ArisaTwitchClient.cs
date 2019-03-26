@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using TwitchLib.Api.Core;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using TwitchLib.Api;
-using TwitchLib.Api.Helix.Models.Users;
+using TwitchLib.Api.Core;
 using TwitchLib.Api.Helix;
 using Stream = TwitchLib.Api.Helix.Models.Streams.Stream;
 
 using ArisaTwitchBot.Services;
+using ArisaTwitchBot.Services.Database;
 using ArisaTwitchBot.Commands;
 
 namespace ArisaTwitchBot
@@ -26,17 +26,34 @@ namespace ArisaTwitchBot
         public Users UsersApi => Helix.Users;
         public Streams StreamsApi => Helix.Streams;
 
-        public User ChannelUser;
-        public Stream ChannelStream;
+        public TwitchLib.Api.Helix.Models.Users.User ChannelUser { get; private set; }
+        public Stream ChannelStream { get; private set; }
 
-        public readonly List<ServiceBase> Services = new List<ServiceBase>();
-        public CommandHandler CommandHandler;
+        private readonly Dictionary<Type, ServiceBase> _services;
+        public TService GetService<TService>()
+            where TService : ServiceBase
+        {
+            return _services[typeof(TService)] as TService;
+        }
+        private void AddService<TService>(TService service)
+            where TService : ServiceBase
+        {
+            _services.Add(typeof(TService), service);
+        }
 
-        private StreamWriter LogWriter;
-        private readonly ManualResetEventSlim JoinedToChannel = new ManualResetEventSlim(false); 
+        private CommandHandler _commandHandler;
+        private UserService _userService;
+
+        private StreamWriter _logWriter;
+        private readonly ManualResetEventSlim _joinedToChannel;
+
+        public bool Stopped { get; private set; }
+        public void Stop() => Stopped = true;
 
         public ArisaTwitchClient()
         {
+            _joinedToChannel = new ManualResetEventSlim(false);
+            _services = new Dictionary<Type, ServiceBase>();
             TwitchClient = new TwitchClient();
 
             var credentials = new ConnectionCredentials(Constants.BotUsername, Constants.OAuthToken);
@@ -51,7 +68,7 @@ namespace ArisaTwitchBot
 
         public async Task InitializeAsync()
         {
-            LogWriter = new StreamWriter(File.OpenWrite("bot_" + Environment.TickCount + ".log"))
+            _logWriter = new StreamWriter(File.OpenWrite("bot_" + Environment.TickCount + ".log"))
             {
                 AutoFlush = true
             };
@@ -64,19 +81,16 @@ namespace ArisaTwitchBot
             TwitchClient.OnUserJoined += (_, e) => OnUserJoined(e);
             TwitchClient.OnMessageReceived += (_, e) => OnMessageReceived(e.ChatMessage);
             TwitchClient.OnJoinedChannel += (_, e) => {
-                if (e.Channel.Equals(Constants.ChannelUsername, StringComparison.OrdinalIgnoreCase))
-                    JoinedToChannel.Set();
+                if (e.Channel.IgnoreCaseEquals(Constants.ChannelUsername))
+                    _joinedToChannel.Set();
             };
 
             TwitchClient.OnError += (_, e) => Log(e.Exception.ToString());
 
+            StartServices();
             InitializeCommandHandler();
 
             TwitchClient.Connect();
-
-            StartServices();
-
-            Log(nameof(ArisaTwitchClient) + " initialized");
 
             SendMessage(
                 "[Bot] I'm now online. Feel free to kill me with !stop (or find out what I can do with !commands)",
@@ -85,20 +99,27 @@ namespace ArisaTwitchBot
 
         private void StartServices()
         {
-            Services.AddRange(new[]
-            {
-                new HydrationService(this).Start(Constants.HydrationServicePeriodAndOffset),
-                new TwitchPrimeReminderService(this).Start(Constants.TwitchPrimeReminderPeriodAndOffset)
-            });
+            AddService(new UserService(this));
+            AddService(new HydrationService(this));
+            AddService(new TwitchPrimeReminderService(this));
+
+            _userService = GetService<UserService>();
         }
         private void InitializeCommandHandler()
         {
-            CommandHandler = new CommandHandler(this)
-                .Add<SocialCommand>()
+            _commandHandler = new CommandHandler(this)
                 .Add<StopCommand>()
+                .Add<SocialCommand>()
+                .Add<BalanceCommand>()
+                .Add<GambleCommand>()
+                .Add<SendCommand>()
                 ;
 
-            TwitchClient.OnChatCommandReceived += (_, e) => CommandHandler.Handle(e.Command);
+            TwitchClient.OnChatCommandReceived += (_, e) =>
+            {
+                if (!Stopped)
+                    _commandHandler.Handle(e.Command);
+            };
         }
 
         private void OnUserJoined(OnUserJoinedArgs userJoined)
@@ -108,6 +129,8 @@ namespace ArisaTwitchBot
 
         private void OnMessageReceived(ChatMessage chatMessage)
         {
+            _userService.OnUserSpotted(chatMessage.UserId, chatMessage.Username);
+
             if (chatMessage.Message is string text)
             {
                 Log($"Chat message from {chatMessage.Username}: {text}");
@@ -116,7 +139,8 @@ namespace ArisaTwitchBot
 
         public void SendMessage(string message, string sender)
         {
-            if (!JoinedToChannel.IsSet) JoinedToChannel.Wait();
+            if (Stopped) return;
+            if (!_joinedToChannel.IsSet) _joinedToChannel.Wait();
             TwitchClient.SendMessage(Constants.ChannelUsername, message);
             Log($"{sender} sent a message \"{message}\"");
         }
@@ -129,10 +153,10 @@ namespace ArisaTwitchBot
         {
             message = $"{DateTime.Now.ToString("HH:mm:ss")} {message}";
 
-            lock (LogWriter)
+            lock (_logWriter)
             {
                 Console.WriteLine(message);
-                LogWriter.WriteLine(message);
+                _logWriter.WriteLine(message);
             }
         }
     }
