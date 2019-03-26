@@ -2,16 +2,17 @@
 
 namespace ArisaTwitchBot.Commands
 {
-    public class SendCommand : ICommand
+    public class SendCommand : ICommand, ICommandAlias
     {
         public string Command => "send";
+        public string[] CommandAliases => new[] { "give" };
 
         public Task Handle(CommandContext context)
         {
             var args = context.Arguments;
 
             if (args.Count != 2 || args[0].Length < 2 || !args[0].StartsWith('@') || !long.TryParse(args[1], out long amount))
-                return context.SendMention("Send points by !send @user amount");
+                return context.SendMention($"{context.CommandName.Capitalize()} points by !{context.CommandName} @user amount");
 
             if (amount < 0 && !context.IsFromModerator)
                 return context.SendMention("You can't steal, can you?");

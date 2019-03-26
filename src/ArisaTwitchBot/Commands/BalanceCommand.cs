@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 
 namespace ArisaTwitchBot.Commands
 {
-    public class BalanceCommand : ICommand
+    public class BalanceCommand : ICommand, ICommandAlias
     {
         public string Command => "balance";
+        public string[] CommandAliases => new[] { "points" };
 
         public Task Handle(CommandContext context)
         {

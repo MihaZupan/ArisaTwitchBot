@@ -51,19 +51,20 @@ namespace ArisaTwitchBot
         }
 
         public static T PickRandom<T>(this T[] array)
-        {
-            return array[new Random().Next(array.Length)];
-        }
+            => array[new Random().Next(array.Length)];
 
         public static bool IgnoreCaseEquals(this string left, string right)
-        {
-            return left.Equals(right, StringComparison.OrdinalIgnoreCase);
-        }
+            => left.Equals(right, StringComparison.OrdinalIgnoreCase);
 
         public static ReadOnlySpan<char> SkipLast(this string source)
             => source.AsSpan(0, source.Length - 1);
 
         public static long Abs(this long value)
             => Math.Abs(value);
+
+        public static string Capitalize(this string source)
+        {
+            return char.ToUpper(source[0]) + source.Substring(1);
+        }
     }
 }

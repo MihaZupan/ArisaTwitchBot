@@ -25,6 +25,13 @@ namespace ArisaTwitchBot.Commands
         public CommandHandler Add(ICommand command)
         {
             _commandTree.Add(command.Command, command);
+            if (command is ICommandAlias commandAlias)
+            {
+                foreach (var alias in commandAlias.CommandAliases)
+                {
+                    _commandTree.Add(alias, command);
+                }
+            }
             return this;
         }
         public CommandHandler Add<TCommand>()
@@ -42,7 +49,7 @@ namespace ArisaTwitchBot.Commands
                 {
                     try
                     {
-                        var context = new CommandContext(ArisaTwitchClient, chatCommand, commandMatch.Value.Command);
+                        var context = new CommandContext(ArisaTwitchClient, chatCommand);
                         await commandMatch.Value.Handle(context);
                     }
                     catch (Exception ex)

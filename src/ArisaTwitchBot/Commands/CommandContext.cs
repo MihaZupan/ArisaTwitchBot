@@ -10,7 +10,7 @@ namespace ArisaTwitchBot.Commands
     {
         public readonly ArisaTwitchClient ArisaTwitchClient;
         public readonly ChatCommand ChatCommand;
-        private readonly string _commandName;
+        public readonly string CommandName;
 
         public ChatMessage ChatMessage => ChatCommand.ChatMessage;
         public bool IsBroadcaster => ChatMessage.IsBroadcaster;
@@ -20,11 +20,11 @@ namespace ArisaTwitchBot.Commands
         public readonly UserService UserService;
         public readonly User User;
 
-        public CommandContext(ArisaTwitchClient arisaTwitchClient, ChatCommand chatCommand, string commandName)
+        public CommandContext(ArisaTwitchClient arisaTwitchClient, ChatCommand chatCommand)
         {
             ArisaTwitchClient = arisaTwitchClient;
             ChatCommand = chatCommand;
-            _commandName = commandName;
+            CommandName = chatCommand.CommandText;
 
             UserService = GetService<UserService>();
             UserService.TryGetUserById(ChatMessage.UserId, out User);
@@ -32,7 +32,7 @@ namespace ArisaTwitchBot.Commands
 
         public Task SendMessage(string message)
         {
-            ArisaTwitchClient.SendMessage(message, _commandName);
+            ArisaTwitchClient.SendMessage(message, CommandName);
             return Task.CompletedTask;
         }
         public Task SendMention(string message)
