@@ -32,5 +32,7 @@ namespace ArisaTwitchBot
         public const long RewardPerBit = 2;
 
         public const string SourceRepositoryUrl = "https://github.com/MihaZupan/ArisaTwitchBot";
+
+        public const string BroadcasterTimeZone = "Europe/Berlin";
     }
 }
