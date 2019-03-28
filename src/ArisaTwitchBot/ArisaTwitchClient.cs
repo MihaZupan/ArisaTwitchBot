@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using TwitchLib.Client;
 using TwitchLib.Client.Models;
+using TwitchLib.Client.Enums;
 using TwitchLib.Api;
 using TwitchLib.Api.Core;
 using TwitchLib.Api.Helix;
@@ -83,10 +84,10 @@ namespace ArisaTwitchBot
                     _joinedToChannel.Set();
             };
 
-            TwitchClient.OnNewSubscriber += (_, e) => OnSubscribed(e.Subscriber.UserId);
-            TwitchClient.OnReSubscriber += (_, e) => OnSubscribed(e.ReSubscriber.UserId);
-            TwitchClient.OnGiftedSubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId);
-            TwitchClient.OnCommunitySubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId, e.GiftedSubscription.MsgParamMassGiftCount);
+            TwitchClient.OnNewSubscriber += (_, e) => OnSubscribed(e.Subscriber.UserId, e.Subscriber.SubscriptionPlan);
+            TwitchClient.OnReSubscriber += (_, e) => OnSubscribed(e.ReSubscriber.UserId, e.ReSubscriber.SubscriptionPlan);
+            TwitchClient.OnGiftedSubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId, e.GiftedSubscription.MsgParamSubPlan);
+            TwitchClient.OnCommunitySubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId, e.GiftedSubscription.MsgParamSubPlan, e.GiftedSubscription.MsgParamMassGiftCount);
 
             TwitchClient.OnError += (_, e) => Log(e.Exception.ToString());
 
@@ -147,8 +148,13 @@ namespace ArisaTwitchBot
             }
         }
 
-        private void OnSubscribed(string senderId, int count = 1)
-            => RewardUser(senderId, Constants.RewardPerSubscription * count);
+        private void OnSubscribed(string senderId, SubscriptionPlan plan, int count = 1)
+        {
+            long reward = Constants.RewardPerSubscription * count;
+            if (plan == SubscriptionPlan.Tier2) reward *= 2;
+            if (plan == SubscriptionPlan.Tier3) reward *= 5;
+            RewardUser(senderId, reward);
+        }
 
         private void RewardUser(string userId, long reward)
         {

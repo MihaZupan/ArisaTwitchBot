@@ -13,7 +13,7 @@ namespace ArisaTwitchBot.Commands
 
         public ChatMessage ChatMessage => ChatCommand.ChatMessage;
         public bool IsBroadcaster => ChatMessage.IsBroadcaster;
-        public bool IsFromModerator => ChatMessage.IsModerator || IsBroadcaster || ChatMessage.IsMe;
+        public bool IsFromModerator => ChatMessage.IsModerator || IsBroadcaster;
         public List<string> Arguments => ChatCommand.ArgumentsAsList;
 
         public readonly UserService UserService;
