@@ -30,5 +30,7 @@ namespace ArisaTwitchBot
         public const long InitialUserBalance = 100;
         public const long RewardPerSubscription = 500;
         public const long RewardPerBit = 2;
+
+        public const string SourceRepositoryUrl = "https://github.com/MihaZupan/ArisaTwitchBot";
     }
 }

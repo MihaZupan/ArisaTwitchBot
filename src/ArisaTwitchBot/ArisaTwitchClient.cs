@@ -117,6 +117,7 @@ namespace ArisaTwitchBot
                 .Add<GambleCommand>()
                 .Add<SendCommand>()
                 .Add<PickRandomCommand>()
+                .Add<SourceCommand>()
                 ;
 
             TwitchClient.OnChatCommandReceived += (_, e) =>
