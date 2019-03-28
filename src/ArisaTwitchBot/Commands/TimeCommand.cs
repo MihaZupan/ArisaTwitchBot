@@ -15,7 +15,7 @@ namespace ArisaTwitchBot.Commands
         {
             var localTime = _clock.GetCurrentTimeOfDay();
             string localTimeString = localTime.ToString("h:mm tt", CultureInfo.InvariantCulture);
-            return context.SendMessage("Broadcaster's local time is " + localTimeString);
+            return context.SendMessage($"{Constants.ChannelUsername}'s local time is {localTimeString}");
         }
     }
 }
