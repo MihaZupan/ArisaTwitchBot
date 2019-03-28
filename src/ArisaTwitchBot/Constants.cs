@@ -28,5 +28,7 @@ namespace ArisaTwitchBot
 #endif
 
         public const long InitialUserBalance = 100;
+        public const long RewardPerSubscription = 500;
+        public const long RewardPerBit = 2;
     }
 }

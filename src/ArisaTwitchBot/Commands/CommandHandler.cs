@@ -45,7 +45,7 @@ namespace ArisaTwitchBot.Commands
             if (_commandTree.TryMatchLongest(chatCommand.CommandText, out KeyValuePair<string, ICommand> commandMatch))
             {
                 Log($"Received a command \"{chatCommand.CommandText}\" from {chatCommand.ChatMessage.Username}");
-                Task.Run(async () =>
+                _ = Task.Run(async () =>
                 {
                     try
                     {

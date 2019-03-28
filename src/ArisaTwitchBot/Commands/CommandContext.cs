@@ -1,5 +1,4 @@
 ﻿using ArisaTwitchBot.Services;
-using ArisaTwitchBot.Services.Database;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TwitchLib.Client.Models;

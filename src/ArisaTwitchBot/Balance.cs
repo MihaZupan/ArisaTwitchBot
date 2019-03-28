@@ -1,4 +1,4 @@
-﻿using ArisaTwitchBot.Services.Database;
+﻿using ArisaTwitchBot.Services;
 using System;
 
 namespace ArisaTwitchBot

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ArisaTwitchBot.Services.Database
+namespace ArisaTwitchBot.Services
 {
     public class UserService : ServiceBase
     {
@@ -15,6 +15,7 @@ namespace ArisaTwitchBot.Services.Database
         {
             _usernameUserIdMap = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _usersMap = new ConcurrentDictionary<string, User>(StringComparer.OrdinalIgnoreCase);
+            _activeUsers = new ConcurrentDictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
 
             using (var ctx = new UsersDbContext())
             {
@@ -29,8 +30,9 @@ namespace ArisaTwitchBot.Services.Database
             }
         }
 
-        private readonly ConcurrentDictionary<string, string> _usernameUserIdMap;
-        private readonly ConcurrentDictionary<string, User> _usersMap;
+        private readonly ConcurrentDictionary<string, string> _usernameUserIdMap;   // Key: Username
+        private readonly ConcurrentDictionary<string, User> _usersMap;              // Key: UserId
+        private readonly ConcurrentDictionary<string, DateTime> _activeUsers;       // Key: Username
 
         public bool TryGetUserById(string userId, out User user)
         {
@@ -51,6 +53,8 @@ namespace ArisaTwitchBot.Services.Database
 
         public void OnUserSpotted(string userId, string username)
         {
+            _activeUsers.TryAdd(username, DateTime.UtcNow);
+
             if (_usernameUserIdMap.TryAdd(username, userId))
             {
                 var userModel = new UserModel(userId, username, Constants.InitialUserBalance);
@@ -61,6 +65,10 @@ namespace ArisaTwitchBot.Services.Database
                     ctx.SaveChanges();
                 }
             }
+        }
+        public void OnUserLeft(string username)
+        {
+            _activeUsers.TryRemove(username, out _);
         }
 
         public void SaveChanges(string userId, long newBalance)
@@ -77,6 +85,10 @@ namespace ArisaTwitchBot.Services.Database
         public List<User> GetAllUsersUnsafe()
         {
             return _usersMap.Values.ToList();
+        }
+        public KeyValuePair<string, DateTime>[] GetAllActiveUsersUnsafe()
+        {
+            return _activeUsers.ToArray();
         }
     }
 }

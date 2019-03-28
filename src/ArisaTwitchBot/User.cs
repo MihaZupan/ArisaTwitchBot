@@ -1,5 +1,5 @@
 ﻿using ArisaTwitchBot.Database.Models;
-using ArisaTwitchBot.Services.Database;
+using ArisaTwitchBot.Services;
 
 namespace ArisaTwitchBot
 {

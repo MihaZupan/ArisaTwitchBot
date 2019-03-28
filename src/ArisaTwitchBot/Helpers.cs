@@ -53,6 +53,9 @@ namespace ArisaTwitchBot
         public static T PickRandom<T>(this T[] array)
             => array[new Random().Next(array.Length)];
 
+        public static T PickRandom<T>(this Random rng, T[] array)
+            => array[rng.Next(array.Length)];
+
         public static bool IgnoreCaseEquals(this string left, string right)
             => left.Equals(right, StringComparison.OrdinalIgnoreCase);
 

@@ -14,7 +14,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0-preview3.19153.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="SharpCollections" Version="0.1.1" />
-    <PackageReference Include="TwitchLib" Version="3.0.1" />
+    <PackageReference Include="TwitchLib.Api" Version="3.0.6-CI-20190317-060258" />
+    <PackageReference Include="TwitchLib.Client" Version="3.0.6-CI-20190317-060125" />
+    <PackageReference Include="TwitchLib.PubSub" Version="3.0.6-CI-20190321-060030" />
   </ItemGroup>
 
 </Project>

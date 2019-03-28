@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using TwitchLib.Client;
-using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
 using TwitchLib.Api;
 using TwitchLib.Api.Core;
@@ -13,7 +12,6 @@ using TwitchLib.Api.Helix;
 using Stream = TwitchLib.Api.Helix.Models.Streams.Stream;
 
 using ArisaTwitchBot.Services;
-using ArisaTwitchBot.Services.Database;
 using ArisaTwitchBot.Commands;
 
 namespace ArisaTwitchBot
@@ -78,12 +76,17 @@ namespace ArisaTwitchBot
 
             ChannelStream = await this.TryGetStreamAsync() ?? throw new Exception("Stream offline!");
 
-            TwitchClient.OnUserJoined += (_, e) => OnUserJoined(e);
+            TwitchClient.OnUserLeft += (_, e) => OnUserLeft(e.Username);
             TwitchClient.OnMessageReceived += (_, e) => OnMessageReceived(e.ChatMessage);
             TwitchClient.OnJoinedChannel += (_, e) => {
                 if (e.Channel.IgnoreCaseEquals(Constants.ChannelUsername))
                     _joinedToChannel.Set();
             };
+
+            TwitchClient.OnNewSubscriber += (_, e) => OnSubscribed(e.Subscriber.UserId);
+            TwitchClient.OnReSubscriber += (_, e) => OnSubscribed(e.ReSubscriber.UserId);
+            TwitchClient.OnGiftedSubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId);
+            TwitchClient.OnCommunitySubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId, e.GiftedSubscription.MsgParamMassGiftCount);
 
             TwitchClient.OnError += (_, e) => Log(e.Exception.ToString());
 
@@ -113,6 +116,7 @@ namespace ArisaTwitchBot
                 .Add<BalanceCommand>()
                 .Add<GambleCommand>()
                 .Add<SendCommand>()
+                .Add<PickRandomCommand>()
                 ;
 
             TwitchClient.OnChatCommandReceived += (_, e) =>
@@ -122,20 +126,45 @@ namespace ArisaTwitchBot
             };
         }
 
-        private void OnUserJoined(OnUserJoinedArgs userJoined)
+        private void OnUserLeft(string username)
         {
-            Log($"{userJoined.Username} joined the channel");
+            Log($"User {username} left");
+            _userService.OnUserLeft(username);
         }
-
         private void OnMessageReceived(ChatMessage chatMessage)
         {
             _userService.OnUserSpotted(chatMessage.UserId, chatMessage.Username);
+
+            if (chatMessage.Bits > 0)
+            {
+                RewardUser(chatMessage.UserId, Constants.RewardPerBit * chatMessage.Bits);
+            }
 
             if (chatMessage.Message is string text)
             {
                 Log($"Chat message from {chatMessage.Username}: {text}");
             }
         }
+
+        private void OnSubscribed(string senderId, int count = 1)
+            => RewardUser(senderId, Constants.RewardPerSubscription * count);
+
+        private void RewardUser(string userId, long reward)
+        {
+            if (_userService.TryGetUserById(userId, out User user))
+            {
+                user.Balance.ExecuteTransaction(
+                    balance => balance.Add(reward));
+
+                if (reward >= 50)
+                {
+                    SendMessage(
+                        $"@{user.Username} Thank you for supporting the channel! You get {reward} points",
+                        sender: nameof(ArisaTwitchClient));
+                }
+            }
+        }
+
 
         public void SendMessage(string message, string sender)
         {
