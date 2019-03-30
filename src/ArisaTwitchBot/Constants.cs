@@ -34,5 +34,7 @@ namespace ArisaTwitchBot
         public const string SourceRepositoryUrl = "https://github.com/MihaZupan/ArisaTwitchBot";
 
         public const string BroadcasterTimeZone = "Europe/Berlin";
+
+        public const int OnSelfReplyDelay = 3000;
     }
 }

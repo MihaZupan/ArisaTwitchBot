@@ -14,7 +14,7 @@ namespace ArisaTwitchBot.Commands
             if (args.Count != 2 || args[0].Length < 2 || !args[0].StartsWith('@') || !long.TryParse(args[1], out long amount))
                 return context.SendMention($"{context.CommandName.Capitalize()} points by !{context.CommandName} @user amount");
 
-            if (amount < 0 && !context.IsFromModerator)
+            if (amount < 0 && !(context.IsFromModerator || context.IsSelfCommand))
                 return context.SendMention("You can't steal, can you?");
 
             string receiver = args[0].Substring(1);

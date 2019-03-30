@@ -18,6 +18,7 @@ namespace ArisaTwitchBot.Commands
 
         public readonly UserService UserService;
         public readonly User User;
+        public readonly bool IsSelfCommand;
 
         public CommandContext(ArisaTwitchClient arisaTwitchClient, ChatCommand chatCommand)
         {
@@ -27,12 +28,15 @@ namespace ArisaTwitchBot.Commands
 
             UserService = GetService<UserService>();
             UserService.TryGetUserById(ChatMessage.UserId, out User);
+            IsSelfCommand = User.Username.IgnoreCaseEquals(Constants.BotUsername);
         }
 
-        public Task SendMessage(string message)
+        public async Task SendMessage(string message)
         {
+            if (IsSelfCommand)
+                await Task.Delay(Constants.OnSelfReplyDelay);
+
             ArisaTwitchClient.SendMessage(message, CommandName);
-            return Task.CompletedTask;
         }
         public Task SendMention(string message)
         {

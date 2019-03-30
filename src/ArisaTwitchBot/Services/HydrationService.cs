@@ -10,7 +10,7 @@ namespace ArisaTwitchBot.Services
 
         protected override Action IntervalCallback => OnInterval;
 
-        protected override PeriodAndOffset PeriodAndOffset => PeriodAndOffset.FromMinutes(60, 5);
+        protected override PeriodAndOffset PeriodAndOffset => PeriodAndOffset.FromMinutes(60, 60);
 
         private static readonly string[] _hydrationMessages = new[]
         {

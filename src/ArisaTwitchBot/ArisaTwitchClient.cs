@@ -14,6 +14,7 @@ using Stream = TwitchLib.Api.Helix.Models.Streams.Stream;
 
 using ArisaTwitchBot.Services;
 using ArisaTwitchBot.Commands;
+using TwitchLib.Communication.Events;
 
 namespace ArisaTwitchBot
 {
@@ -89,6 +90,7 @@ namespace ArisaTwitchBot
             TwitchClient.OnGiftedSubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId, e.GiftedSubscription.MsgParamSubPlan);
             TwitchClient.OnCommunitySubscription += (_, e) => OnSubscribed(e.GiftedSubscription.UserId, e.GiftedSubscription.MsgParamSubPlan, e.GiftedSubscription.MsgParamMassGiftCount);
 
+            TwitchClient.OnMessageThrottled += (_, e) => OnMessageThrottled(e);
             TwitchClient.OnError += (_, e) => Log(e.Exception.ToString());
 
             StartServices();
@@ -96,9 +98,13 @@ namespace ArisaTwitchBot
 
             TwitchClient.Connect();
 
-            SendMessage(
-                "[Bot] I'm now online. Feel free to kill me with !stop (or find out what I can do with !commands)",
-                nameof(ArisaTwitchClient));
+            TimeSpan? uptime = await this.TryGetStreamUptimeAsync();
+            if (uptime.HasValue && uptime.Value.TotalMinutes < 30)
+            {
+                SendMessage(
+                    "[Bot] I'm now online. Feel free to kill me with !stop (or find out what I can do with !commands)",
+                    nameof(ArisaTwitchClient));
+            }
         }
 
         private void StartServices()
@@ -161,6 +167,8 @@ namespace ArisaTwitchBot
         {
             if (_userService.TryGetUserById(userId, out User user))
             {
+                Log($"Rewarding {user.Username} for {reward}");
+
                 user.Balance.ExecuteTransaction(
                     balance => balance.Add(reward));
 
@@ -173,6 +181,15 @@ namespace ArisaTwitchBot
             }
         }
 
+        public void OnMessageThrottled(OnMessageThrottledEventArgs message)
+        {
+            Log($"Message throttled: \"{message.Message}\"");
+            Task.Run(async () =>
+            {
+                await Task.Delay(message.AllowedInPeriod);
+                SendMessage(message.Message, nameof(OnMessageThrottled));
+            });
+        }
 
         public void SendMessage(string message, string sender)
         {
